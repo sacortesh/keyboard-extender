@@ -20,6 +20,12 @@ namespace Avangarde.KeyboardExtenderPlugins.Externals
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool ShowWindow(IntPtr hWnd, ShowWindowCommands nCmdShow);
 
+        public static void RestoreMaximizedActiveWindow()
+        {
+            IntPtr hwnd = GetForegroundWindow();
+            ShowWindow(hwnd, ShowWindowCommands.SW_RESTORE);
+        }
+
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
         [DllImport("user32.dll")]
@@ -42,6 +48,7 @@ namespace Avangarde.KeyboardExtenderPlugins.Externals
     public enum ShowWindowCommands
     {
         SW_MAXIMIZE = 3,
-        SW_MINIMIZE = 6
+        SW_MINIMIZE = 6,
+        SW_RESTORE = 9
     }
 }

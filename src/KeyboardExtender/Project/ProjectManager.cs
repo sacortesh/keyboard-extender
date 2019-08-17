@@ -1,6 +1,7 @@
 ﻿using Avangarde.KeyboardExtender.Externals;
 using Avangarde.KeyboardExtender.Models;
 using Avangarde.KeyboardExtenderPlugins;
+using IniParser.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -9,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -16,7 +18,9 @@ namespace Avangarde.KeyboardExtender.Project
 {
     public sealed class ProjectManager : IDisposable
     {
-        protected List<IBehavior> _bindings { get; set; }
+        protected List<IBehavior> _availableBindings { get; set; }
+        protected List<IBehavior> _activeBindings { get; set; }
+
 
 
         #region SingletonConfiguration
@@ -52,6 +56,7 @@ namespace Avangarde.KeyboardExtender.Project
 
         public List<ScreenVO> screens = null;
         private GlobalKeyboardHook _globalKeyboardHook;
+        private byte[] _modifierArray;
 
         public void InitializeScreens()
         {
@@ -73,22 +78,116 @@ namespace Avangarde.KeyboardExtender.Project
 
         public bool RunMainLogic()
         {
-
-            SetupKeyboardHooks();
             InitializeBehaviors();
+
+            LoadConfiguration();
+            SetupKeyboardHooks();
 
             return true;
 
         }
 
+        private void LoadConfiguration()
+        {
+            var ok = new IniParser.FileIniDataParser();
+            IniData envelope = ok.ReadFile(Environment.CurrentDirectory + "\\KeyboardExtender.cfg");
+
+            string modmask = envelope["General"]["ModMask"];
+            this._modifierArray = CalculateModifierArrayFromString(modmask);
+            List<KeyData> keys = envelope["Keys"].ToList();
+
+            foreach (KeyData key in keys)
+            {
+                string keyRaw = key.KeyName;
+                string value = key.Value;
+
+                foreach (var bind in this._availableBindings)
+                {
+                    if (bind.Identifier == value)
+                    {
+                        bind.TriggerKey = (Keys)Enum.Parse(typeof(Keys), keyRaw);
+                        bind.ModifierArray = this._modifierArray;
+                        this._activeBindings.Add(bind);
+                    }
+                }
+            }
+
+
+        }
+
+        private byte[] CalculateModifierArrayFromString(string modmask)
+        {
+            var pattern = @"\<(.*?)\>";
+            //var query = "H1-receptor antagonist [HSA:3269] [PATH:hsa04080(3269)]";
+            var matches = Regex.Matches(modmask, pattern);
+
+            List<string> masks = new List<string>();
+
+            foreach (Match m in matches)
+            {
+                Console.WriteLine(m.Groups[1]);
+                masks.Add(m.Groups[1].ToString());
+
+            }
+
+            byte[] result = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+            foreach (string each in masks)
+            {
+                ////Alt, AltGr, CtrlLeft, CtrlRight, ShiftLeft, ShiftRight, SuperLeft, SuperRight
+                if ((Keys)Enum.Parse(typeof(Keys), each) == Keys.Alt)
+                {
+                    result[0] = 1;
+                }
+
+                if ((Keys)Enum.Parse(typeof(Keys), each) == Keys.LControlKey)
+                {
+                    result[2] = 1;
+                }
+
+                if ((Keys)Enum.Parse(typeof(Keys), each) == Keys.RControlKey)
+                {
+                    result[3] = 1;
+                }
+
+                if ((Keys)Enum.Parse(typeof(Keys), each) == Keys.LShiftKey)
+                {
+                    result[4] = 1;
+                }
+
+                if ((Keys)Enum.Parse(typeof(Keys), each) == Keys.RShiftKey)
+                {
+                    result[5] = 1;
+                }
+
+                if ((Keys)Enum.Parse(typeof(Keys), each) == Keys.LWin)
+                {
+                    result[6] = 1;
+                }
+
+                if ((Keys)Enum.Parse(typeof(Keys), each) == Keys.RWin)
+                {
+                    result[7] = 1;
+                }
+
+            }
+
+            return result;
+        }
+
         private void InitializeBehaviors()
         {
 
-            if (this._bindings == null)
+            if (this._availableBindings == null)
             {
-                this._bindings = new List<IBehavior>();
+                this._availableBindings = new List<IBehavior>();
             }
-            
+
+            if (this._activeBindings == null)
+            {
+                this._activeBindings = new List<IBehavior>();
+            }
+
 
             Type[] typelist = GetTypesInNamespace(Assembly.GetAssembly(typeof(IBehavior)),
                                       "Avangarde.KeyboardExtenderPlugins.Plugins");
@@ -98,7 +197,7 @@ namespace Avangarde.KeyboardExtender.Project
 
                 ConstructorInfo ctor = t.GetConstructor(Type.EmptyTypes);
                 object instance = ctor.Invoke(new object[] { });
-                _bindings.Add(instance as IBehavior);
+                _availableBindings.Add(instance as IBehavior);
             }
 
         }
@@ -203,18 +302,29 @@ namespace Avangarde.KeyboardExtender.Project
 
             Debug.WriteLine(e.KeyboardState.ToString() + " : " + e.KeyboardData.VirtualCode + " : " + e.KeyPressed.ToString());
 
-            if((e.KeyboardState == GlobalKeyboardHook.KeyboardState.SysKeyUp || e.KeyboardState == GlobalKeyboardHook.KeyboardState.KeyUp)){
-                if (this._pressedOnCtrlLeft && this._pressedOnAltLeft)
+            if ((e.KeyboardState == GlobalKeyboardHook.KeyboardState.SysKeyUp || e.KeyboardState == GlobalKeyboardHook.KeyboardState.KeyUp))
+            {
+
+                byte[] hello = CalculateCurrentModifierArray();
+
+                if (this._modifierArray.SequenceEqual(hello))
                 {
-                    if (e.KeyPressed == Keys.M)
+
+                    foreach (IBehavior type in this._activeBindings)
                     {
-                        this._bindings[0].ExecuteBehavior();
-                        e.Handled = true;
-                        return;
+                        Keys trigger = type.TriggerKey;
+                        if (e.KeyPressed == trigger)
+                        {
+                            type.ExecuteBehavior();
+                            e.Handled = true;
+                            return;
+                        }
                     }
+
+
                 }
             }
-            
+
 
             /*
             if (e.KeyboardState == GlobalKeyboardHook.KeyboardState.KeyUp)
@@ -234,6 +344,54 @@ namespace Avangarde.KeyboardExtender.Project
             //else
             */
 
+        }
+
+        private byte[] CalculateCurrentModifierArray()
+        {
+            byte[] result = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
+            ////Alt, AltGr, CtrlLeft, CtrlRight, ShiftLeft, ShiftRight, SuperLeft, SuperRight
+            if (this._pressedOnAltLeft)
+            {
+                result[0] = 1;
+            }
+
+            if (this._pressedOnAltRight)
+            {
+                result[1] = 1;
+            }
+
+            if (this._pressedOnCtrlLeft)
+            {
+                result[2] = 1;
+            }
+
+            if (this._pressedOnCtrlRight)
+            {
+                result[3] = 1;
+            }
+
+            if (this._pressedOnShiftLeft)
+            {
+                result[4] = 1;
+            }
+
+            if (this._pressedOnShiftRight)
+            {
+                result[5] = 1;
+            }
+
+            if (this._pressedOnSuperLeft)
+            {
+                result[6] = 1;
+            }
+
+            if (this._pressedOnSuperRight)
+            {
+                result[7] = 1;
+            }
+
+            return result;
         }
 
         public void Dispose()

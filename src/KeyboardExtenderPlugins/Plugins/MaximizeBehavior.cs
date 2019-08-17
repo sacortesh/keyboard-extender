@@ -9,7 +9,7 @@ namespace Avangarde.KeyboardExtenderPlugins.Plugins
 {
     public class MaximizeBehavior : BehaviorBase
     {
-        public MaximizeBehavior() : base("maximize", 1)
+        public MaximizeBehavior() : base("maximize", 2)
         {
             
         }
@@ -20,7 +20,17 @@ namespace Avangarde.KeyboardExtenderPlugins.Plugins
 
             //my new behavior;
             //validate modifier
-            WindowsManagementExternals.MaximizeActiveWindow();
-        }
+            switch (modifier)
+            {
+                case 1:
+                    WindowsManagementExternals.MaximizeActiveWindow();
+                    break;
+                case 2:
+                    WindowsManagementExternals.RestoreMaximizedActiveWindow();
+                    break;
+                default:
+                    break;
+            }
+            }
     }
 }
