@@ -310,16 +310,32 @@ namespace Avangarde.KeyboardExtender.Project
                 if (this._modifierArray.SequenceEqual(hello))
                 {
 
+                    IBehavior detected = null;
+
                     foreach (IBehavior type in this._activeBindings)
                     {
                         Keys trigger = type.TriggerKey;
                         if (e.KeyPressed == trigger)
                         {
-                            type.ExecuteBehavior();
-                            e.Handled = true;
-                            return;
+                            detected = type;
+                            break;
                         }
                     }
+                    if (detected != null)
+                    {
+                        foreach (IBehavior type in this._activeBindings)
+                        {
+                            if (type != detected)
+                            {
+                                type.ResetModifier();
+                            }
+                        }
+
+                        detected.ExecuteBehavior();
+                        e.Handled = true;
+                        return;
+                    }
+
 
 
                 }

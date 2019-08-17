@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Avangarde.KeyboardExtenderPlugins.Plugins
 {
-    public class MaximizeBehavior : BehaviorBase
+    public class ShowDesktopBehavior : BehaviorBase
     {
-        public MaximizeBehavior() : base("maximize", 2)
+        public ShowDesktopBehavior() : base("show-desktop", 2)
         {
 
         }
@@ -23,10 +23,10 @@ namespace Avangarde.KeyboardExtenderPlugins.Plugins
             switch (modifier)
             {
                 case 1:
-                    WindowsManagementExternals.MaximizeActiveWindow();
+                    WindowsManagementExternals.ShowDesktop();
                     break;
                 case 2:
-                    WindowsManagementExternals.RestoreMaximizedActiveWindow();
+                    WindowsManagementExternals.RestoreAfterShowDesktop();
                     break;
                 default:
                     break;
@@ -34,3 +34,4 @@ namespace Avangarde.KeyboardExtenderPlugins.Plugins
         }
     }
 }
+

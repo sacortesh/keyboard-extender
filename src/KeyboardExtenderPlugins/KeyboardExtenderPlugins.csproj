@@ -46,6 +46,7 @@
     <Compile Include="Externals\WindowsManagementExternals.cs" />
     <Compile Include="IBehavior.cs" />
     <Compile Include="Plugins\MaximizeBehavior.cs" />
+    <Compile Include="Plugins\ShowDesktopBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
