@@ -1,5 +1,4 @@
 ﻿using Avangarde.KeyboardExtender.Externals;
-using Avangarde.KeyboardExtender.Models;
 using Avangarde.KeyboardExtenderPlugins;
 using IniParser.Model;
 using System;
@@ -54,27 +53,10 @@ namespace Avangarde.KeyboardExtender.Project
         private bool _pressedOnShiftRight = false;
 
 
-        public List<ScreenVO> screens = null;
         private GlobalKeyboardHook _globalKeyboardHook;
         private byte[] _modifierArray;
 
-        public void InitializeScreens()
-        {
-            if (screens == null)
-            {
-                screens = new List<ScreenVO>();
-            }
-            else
-            {
-                //TODO clean better?
-                screens = new List<ScreenVO>();
-            }
-
-            foreach (Screen screen in Screen.AllScreens)
-            {
-                screens.Add(new ScreenVO(screen));
-            }
-        }
+        
 
         public bool RunMainLogic()
         {

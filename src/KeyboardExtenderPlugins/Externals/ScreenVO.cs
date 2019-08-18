@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Avangarde.KeyboardExtender.Models
+namespace Avangarde.KeyboardExtenderPlugins.Models
 {
     public class ScreenVO
     {
@@ -25,7 +25,6 @@ namespace Avangarde.KeyboardExtender.Models
             this._minimumPositionY = scr.WorkingArea.Top;
             this._maximumPositionX = scr.WorkingArea.Right;
             this._maximumPositionY = scr.WorkingArea.Bottom;
-
         }
 
         public override string ToString()

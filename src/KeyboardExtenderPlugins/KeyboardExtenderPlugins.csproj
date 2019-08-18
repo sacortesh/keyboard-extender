@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,8 +44,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AbstractBehavior.cs" />
+    <Compile Include="Externals\ScreenManagementExternals.cs" />
+    <Compile Include="Externals\ScreenVO.cs" />
     <Compile Include="Externals\WindowsManagementExternals.cs" />
     <Compile Include="IBehavior.cs" />
+    <Compile Include="Plugins\LeftBehavior.cs" />
+    <Compile Include="Plugins\BottomLeftBehavior.cs" />
+    <Compile Include="Plugins\TopLeftBehavior.cs" />
     <Compile Include="Plugins\MaximizeBehavior.cs" />
     <Compile Include="Plugins\ShowDesktopBehavior.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

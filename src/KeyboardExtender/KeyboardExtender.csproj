@@ -57,7 +57,6 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Models\ScreenVO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Project\ProjectManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +96,9 @@
       <Project>{2351D146-EFEB-48F6-B579-B948E67DE6CB}</Project>
       <Name>KeyboardExtenderPlugins</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

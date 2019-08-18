@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Avangarde.KeyboardExtenderPlugins.Externals
 {
@@ -49,10 +50,21 @@ namespace Avangarde.KeyboardExtenderPlugins.Externals
         }
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
+        public static extern IntPtr GetForegroundWindow();
         [DllImport("user32.dll")]
         private static extern int GetWindowText(IntPtr hWnd, StringBuilder text, int count);
 
+
+        public static IntPtr GetActiveWindowAndScreen(out int top, out int left, out int height, out int width)
+        {
+            IntPtr activeWindow = WindowsManagementExternals.GetForegroundWindow();
+            var activeScr = Screen.FromHandle(activeWindow);
+            top = activeScr.WorkingArea.Top;
+            left = activeScr.WorkingArea.Left;
+            height = activeScr.WorkingArea.Height;
+            width = activeScr.WorkingArea.Width;
+            return activeWindow;
+        }
 
         public static IntPtr FindWindow(string caption)
         {
