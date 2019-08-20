@@ -1,11 +1,13 @@
 ﻿using Avangarde.KeyboardExtender.Externals;
 using Avangarde.KeyboardExtenderPlugins;
+using IniParser;
 using IniParser.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -71,8 +73,13 @@ namespace Avangarde.KeyboardExtender.Project
 
         private void LoadConfiguration()
         {
-            var ok = new IniParser.FileIniDataParser();
-            IniData envelope = ok.ReadFile(Environment.CurrentDirectory + "\\KeyboardExtender.cfg");
+            if (!File.Exists(Environment.CurrentDirectory + "\\KeyboardExtender.cfg"))
+            {
+                CreateDefaultConfigFile();
+            }
+
+            FileIniDataParser finiParser = new IniParser.FileIniDataParser();
+            IniData envelope = finiParser.ReadFile(Environment.CurrentDirectory + "\\KeyboardExtender.cfg");
 
             string modmask = envelope["General"]["ModMask"];
             this._modifierArray = CalculateModifierArrayFromString(modmask);
@@ -95,6 +102,12 @@ namespace Avangarde.KeyboardExtender.Project
             }
 
 
+        }
+
+        private void CreateDefaultConfigFile()
+        {
+            string[] contents = { "[General]", "ModMask = <" + Keys.LControlKey.ToString() + "><" + Keys.Alt.ToString() + ">", "[Keys]"};
+            System.IO.File.WriteAllLines(Environment.CurrentDirectory + "\\KeyboardExtender.cfg", contents);
         }
 
         private byte[] CalculateModifierArrayFromString(string modmask)
