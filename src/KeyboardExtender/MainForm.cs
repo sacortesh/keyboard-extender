@@ -17,16 +17,11 @@ namespace Avangarde.KeyboardExtender
     {
         public MainForm()
         {
-            InitializeComponent();
-
-            ProjectManager.Instance.RunMainLogic();
+            InitializeComponent();            
+            
+            
         }
 
         
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            
-        }
     }
 }
