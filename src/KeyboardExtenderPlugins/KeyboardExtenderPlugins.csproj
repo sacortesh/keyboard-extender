@@ -48,6 +48,7 @@
     <Compile Include="Externals\ScreenVO.cs" />
     <Compile Include="Externals\WindowsManagementExternals.cs" />
     <Compile Include="IBehavior.cs" />
+    <Compile Include="Plugins\TopBehavior.cs" />
     <Compile Include="Plugins\LeftBehavior.cs" />
     <Compile Include="Plugins\BottomLeftBehavior.cs" />
     <Compile Include="Plugins\TopLeftBehavior.cs" />
