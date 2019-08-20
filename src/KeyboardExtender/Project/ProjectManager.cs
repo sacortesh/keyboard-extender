@@ -120,7 +120,7 @@ namespace Avangarde.KeyboardExtender.Project
 
             foreach (Match m in matches)
             {
-                Console.WriteLine(m.Groups[1]);
+                //Console.WriteLine(m.Groups[1]);
                 masks.Add(m.Groups[1].ToString());
 
             }
